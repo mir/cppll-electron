@@ -68,11 +68,7 @@
       };
     },
     methods: {
-      computeNext() {
-        const result = sim(this.tauK, this.vK, this.params);
-        this.tauK = result.tauK;
-        this.vK = result.vK;
-        this.log.push({ x: this.tauK, y: this.vK });
+      updateChartData() {
         this.datacollection = {
           datasets: [
             {
@@ -85,19 +81,16 @@
           ],
         };
       },
+      computeNext() {
+        const result = sim(this.tauK, this.vK, this.params);
+        this.tauK = result.tauK;
+        this.vK = result.vK;
+        this.log.push({ x: this.tauK, y: this.vK });
+        this.updateChartData();
+      },
       clear() {
         this.log = [{ x: this.tauK, y: this.vK }];
-        this.datacollection = {
-          datasets: [
-            {
-              label: 'tau_k and v_k',
-              backgroundColor: '#f87979',
-              showLine: true,
-              fill: false,
-              data: this.log,
-            },
-          ],
-        };
+        this.updateChartData();
       },
     },
   };
