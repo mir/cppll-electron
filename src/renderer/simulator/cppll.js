@@ -1,17 +1,28 @@
+function rem(x, base) {
+  let result = Math.abs(x);
+  while (result >= base) {
+    result -= base;
+  }
+  return result;
+}
+
+function solveSquare(a, b, c) {
+  return (-b + Math.sqrt((b * b) - (4 * a * c))) / (2 * a);
+}
+
 export default function (tauK, vK, params) {
   const data = { tauK, vK };
   const p = params;
-
+  const a = (p.Kvco * p.Ip) / (2 * p.C);
+  const b = p.omegaFree + (p.Kvco * vK) + (p.Kvco * p.Ip * p.R);
   if (tauK >= 0) {
-    const c = ((p.Tref - (tauK % p.Tref)) * (p.omegaFree + (p.Kvco * vK))) - 1;
+    const c = ((p.Tref - rem(tauK, p.Tref)) * (p.omegaFree + (p.Kvco * vK))) - 1;
     if (c <= 0) {
       // tau(k+1) > 0, case 1)
-      const a = (p.Kvco * p.Ip) / (2 * p.C);
-      const b = p.omegaFree + (p.Kvco * vK) + (p.Kvco * p.Ip * p.R);
-      data.tauK = (-b + Math.sqrt((b * b) - (4 * a * c))) / (2 * a);
+      data.tauK = solveSquare(a, b, c);
     } else {
       //    tau(k+1) < 0, case 2)
-      data.tauK = ((1 / (p.omegaFree + (p.Kvco * vK))) - p.Tref) + (tauK % p.Tref);
+      data.tauK = ((1 / (p.omegaFree + (p.Kvco * vK))) - p.Tref) + rem(tauK, p.Tref);
     }
   } else {
     const lk = -tauK;
@@ -20,7 +31,7 @@ export default function (tauK, vK, params) {
     Slk += p.omegaFree;
     Slk *= lk;
     Slk += (p.Kvco * p.Ip * lk * lk) / (2 * p.C);
-    const Sla = Slk % 1;
+    const Sla = rem(Slk, 1);
     const Slb = 1 - Sla;
     const lb = Slb / ((p.Kvco * vK) + p.omegaFree);
     if (lb <= p.Tref) {
@@ -30,10 +41,8 @@ export default function (tauK, vK, params) {
     } else {
       // tau(k + 1) >= 0
       const STref = p.Tref * ((p.Kvco * vK) + p.omegaFree);
-      const c = (Sla + STref) - 1;
-      const b = p.omegaFree + (p.Kvco * vK) + (p.Kvco * p.Ip * p.R);
-      const a = (p.Kvco * p.Ip) / (2 * p.C);
-      data.tauK = (-b + Math.sqrt((b * b) - (4 * a * c))) / (2 * a);
+      const d = (Sla + STref) - 1;
+      data.tauK = solveSquare(a, b, d);
     }
   }
   data.vK = vK + ((data.tauK * p.Ip) / p.C);
