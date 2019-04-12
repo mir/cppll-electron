@@ -29,7 +29,7 @@
       <button type="button" @click="computeNext">Next</button>
       <button type="button" @click="clear">Clear</button>
     </section>
-    <tauv-chart :chart-data="datacollection"></tauv-chart>
+    <tauv-chart :chart-data="datacollection" id="chart"></tauv-chart>
   </div>
 </template>
 
@@ -47,7 +47,7 @@
         datacollection: {
           datasets: [
             {
-              label: 'Data One',
+              label: 'tau_k and v_k',
               backgroundColor: '#f87979',
               fill: false,
               data: [{ x: 0, y: 10 }],
