@@ -1,32 +1,39 @@
 <template>
   <div id="app">
-    <p>CPPLL simulator</p>
-    <section class="params">
-      <label for="C">C = </label>
-      <input type="number" v-model.number="params.C" id="C"/>
-      <br/>
-      <label for="R">R = </label>
-      <input type="number" v-model.number="params.R" id="R"/>
-      <br/>
-      <label for="I_p">I_p = </label>
-      <input type="number" v-model.number="params.Ip" id="I_p"/>
-      <br/>
-      <label for="K_vco">K_vco = </label>
-      <input type="number" v-model.number="params.Kvco" id="K_vco"/>
-      <br/>
-      <label for="T_ref">T_ref = </label>
-      <input type="number" v-model.number="params.Tref" id="T_ref"/>
-      <br/>
-      <label for="omega_free">omega_free = </label>
-      <input type="number" v-model.number="params.omegaFree" id="omega_free"/>
-    </section>
-    <section class="inital-data">
-      <p>tau_k = {{ tauK }}</p>
+    <h1>CPPLL simulator</h1>
+    <span class="params">C = {{ params.C }}</span>
+    <div class="ranges">
+      <input type="range" v-model.number="CRange" min="0" max="100" />
+    </div>
+    <span class="params">R = {{ params.R }}</span>
+    <div class="ranges">
+      <input type="range" v-model.number="RRange" min="0" max="100"/>
+    </div>
+    <span class="params">I_p = {{ params.Ip }}</span>
+    <div class="ranges">
+      <input type="range" v-model.number="IPRange" min="0" max="100"/>
+    </div>
+    <span class="params">K_vco = {{ params.Kvco }}</span>
+    <div class="ranges">
+      <input type="range" v-model.number="KVCORange" min="1" max="1000"/>
+    </div>
+    <span class="params">T_ref = {{ params.Tref }}</span>
+    <div class="ranges">
+      <input type="range" v-model.number="omegaRefRange" min="1" max="100"/>
+    </div>
+    <span class="params">omega_free = {{ params.omegaFree }}</span>
+    <div class="ranges">
+      <input type="range" v-model.number="omegaFreeRange" min="0" max="100"/>
+    </div>
+    <h3>Initial data</h3>
+    <span class="params">tau_k = {{ tauK }}</span>
+    <div class="ranges">
       <input type="range"  v-model="tauKRange" name="tauKRange"  min="-50" max="50">
-      <br/>
-      <p>v_k = {{ vK }}</p>
+    </div>
+    <span class="params">v_k = {{ vK }}</span>
+    <div class="ranges">
       <input type="range"  v-model="vKRange" name="vKRange"  min="0" max="100">
-    </section>
+    </div>
     <tauv-chart :chart-data="datacollection"  id="chart"></tauv-chart>
   </div>
 </template>
@@ -44,18 +51,25 @@
       return {
         tauKRange: 0,
         vKRange: 10,
-        // log: [{ x: 0, y: 10 }],
-        params: {
-          R: 1000,
-          Ip: 1e-3,
-          C: 1e-6,
-          Kvco: 500,
-          Tref: 1e-3,
-          omegaFree: 0,
-        },
+        omegaFreeRange: 0,
+        omegaRefRange: 30,
+        KVCORange: 500,
+        IPRange: 30,
+        RRange: 30,
+        CRange: 60,
       };
     },
     computed: {
+      params() {
+        return {
+          R: 10 ** (this.RRange / 10),
+          Ip: 0.1 ** (this.IPRange / 10),
+          C: 0.1 ** (this.CRange / 10),
+          Kvco: this.KVCORange,
+          Tref: 1 / (10 ** (this.omegaRefRange / 10)),
+          omegaFree: (10 ** (this.omegaFreeRange / 10)) - 1,
+        };
+      },
       tauK() {
         return (this.params.Tref * this.tauKRange) / 50;
       },
@@ -66,7 +80,7 @@
         return (10 ** to) - 1;
       },
       log() {
-        return computeNextN(30, this.tauK, this.vK, this.params);
+        return computeNextN(90, this.tauK, this.vK, this.params);
       },
       datacollection() {
         return {
@@ -87,7 +101,28 @@
 
 <style>
   /* CSS */
+  #app {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+  }
+  h1 {
+    grid-column: span 12;
+    text-align: center;
+  }
+  h3 {
+    grid-column: span 12;
+    text-align: center;
+  }
   .params {
-    text-align: right;
+    grid-column: span 8;
+  }
+  .ranges {
+    grid-column: span 4;
+  }
+  .initialData {
+    grid-column: span 12;
+  }
+  #chart {
+    grid-column: span 12;
   }
 </style>
