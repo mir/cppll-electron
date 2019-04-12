@@ -7,12 +7,6 @@ export default {
   mixins: [reactiveProp],
   options: {
     responsive: true,
-    maintainAspectRatio: false,
-    elements: {
-      line: {
-        tension: 0, // disables bezier curves
-      },
-    },
   },
 
   mounted() {

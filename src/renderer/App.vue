@@ -21,20 +21,18 @@
       <input type="number" v-model.number="params.omegaFree" id="omega_free"/>
     </section>
     <section class="inital-data">
-      <label for="tau_k">tau_k = </label>
-      <input type="number" v-model.number="tauK" id="tau_k"/>
-      <label for="v_k">v_k = </label>
-      <input type="number" v-model.number="vK" id="v_k"/>
+      <p>tau_k = {{ tauK }}</p>
+      <input type="range"  v-model="tauKRange" name="tauKRange"  min="-50" max="50">
       <br/>
-      <button type="button" @click="computeNext">Next</button>
-      <button type="button" @click="clear">Clear</button>
+      <p>v_k = {{ vK }}</p>
+      <input type="range"  v-model="vKRange" name="vKRange"  min="0" max="100">
     </section>
-    <tauv-chart :chart-data="datacollection" id="chart"></tauv-chart>
+    <tauv-chart :chart-data="datacollection"  id="chart"></tauv-chart>
   </div>
 </template>
 
 <script>
-  import sim from './simulator/cppll.js';
+  import { computeNextN } from './simulator/cppll.js';
   import tauvChart from './components/tauvChart';
 
   export default {
@@ -44,32 +42,34 @@
     },
     data() {
       return {
-        datacollection: {
-          datasets: [
-            {
-              label: 'tau_k and v_k',
-              backgroundColor: '#f87979',
-              fill: false,
-              data: [{ x: 0, y: 10 }],
-            },
-          ],
-        },
-        tauK: 0,
-        vK: 10,
-        log: [{ x: 0, y: 10 }],
+        tauKRange: 0,
+        vKRange: 10,
+        // log: [{ x: 0, y: 10 }],
         params: {
           R: 1000,
-          Ip: 10e-3,
-          C: 10e-6,
+          Ip: 1e-3,
+          C: 1e-6,
           Kvco: 500,
-          Tref: 10e-3,
+          Tref: 1e-3,
           omegaFree: 0,
         },
       };
     },
-    methods: {
-      updateChartData() {
-        this.datacollection = {
+    computed: {
+      tauK() {
+        return (this.params.Tref * this.tauKRange) / 50;
+      },
+      vK() {
+        let to = this.vKRange / 50.0;
+        if (to > 10) { to = 10; }
+        if (to < 0) { to = 0; }
+        return (10 ** to) - 1;
+      },
+      log() {
+        return computeNextN(30, this.tauK, this.vK, this.params);
+      },
+      datacollection() {
+        return {
           datasets: [
             {
               label: 'tau_k and v_k',
@@ -80,17 +80,6 @@
             },
           ],
         };
-      },
-      computeNext() {
-        const result = sim(this.tauK, this.vK, this.params);
-        this.tauK = result.tauK;
-        this.vK = result.vK;
-        this.log.push({ x: this.tauK, y: this.vK });
-        this.updateChartData();
-      },
-      clear() {
-        this.log = [{ x: this.tauK, y: this.vK }];
-        this.updateChartData();
       },
     },
   };

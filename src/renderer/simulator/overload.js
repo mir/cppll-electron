@@ -50,5 +50,5 @@ export function overloadCondition(tauK, vK, params) {
   const p = params;
   const cond1 = (tauK > 0) && (((vK + (p.omegaFree / p.Kvco)) - ((p.Ip / p.C) * tauK)) < 0);
   const cond2 = (tauK < 0) && ((vK + (p.omegaFree / p.Kvco)) - (p.Ip * p.R) < 0);
-  return cond1 && cond2;
+  return cond1 || cond2;
 }
