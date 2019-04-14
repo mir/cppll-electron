@@ -32,6 +32,10 @@ export function inHoldIn(params) {
   return (1 / params.Tref) > Math.sqrt((params.Kvco * params.Ip) / 4 / params.C);
 }
 
+export function cycle3Exists(params) {
+  return (1 / params.Tref) <= Math.sqrt((params.Kvco * params.Ip) / 3 / params.C);
+}
+
 export function computeNext10(tauK, vK, params) {
   return computeNextN(10, tauK, vK, params);
 }
