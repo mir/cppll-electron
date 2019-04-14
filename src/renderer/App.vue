@@ -17,7 +17,9 @@
     <div class="ranges">
       <input type="range" v-model.number="KVCORange" min="1" max="1000"/>
     </div>
-    <span class="params">T_ref = {{ params.Tref }}</span>
+    <span class="params" v-bind:class="{ redText: toMakeTrefRed }" >
+      T_ref = {{ params.Tref }}
+    </span>
     <div class="ranges">
       <input type="range" v-model.number="omegaRefRange" min="1" max="100"/>
     </div>
@@ -39,7 +41,7 @@
 </template>
 
 <script>
-  import { computeNextN } from './simulator/cppll.js';
+  import { computeNextN, equilibria, inHoldIn } from './simulator/cppll.js';
   import tauvChart from './components/tauvChart';
 
   export default {
@@ -79,12 +81,26 @@
         if (to < 0) { to = 0; }
         return (10 ** to) - 1;
       },
+      eq() {
+        return [{
+          x: equilibria(this.params).tauK,
+          y: equilibria(this.params).vK,
+        }];
+      },
       log() {
         return computeNextN(90, this.tauK, this.vK, this.params);
+      },
+      toMakeTrefRed() {
+        return !inHoldIn(this.params);
       },
       datacollection() {
         return {
           datasets: [
+            {
+              label: 'equlibria',
+              backgroundColor: '#a0f841',
+              data: this.eq,
+            },
             {
               label: 'tau_k and v_k',
               backgroundColor: '#f87979',
@@ -115,6 +131,9 @@
   }
   .params {
     grid-column: span 8;
+  }
+  .redText {
+    background-color: #ff928e;
   }
   .ranges {
     grid-column: span 4;

@@ -21,6 +21,17 @@ export function computeNextN(n, tauK, vK, params) {
   return results;
 }
 
+export function equilibria(params) {
+  return {
+    tauK: 0,
+    vK: (1 / (params.Tref * params.Kvco)) - (params.omegaFree / params.Kvco),
+  };
+}
+
+export function inHoldIn(params) {
+  return (1 / params.Tref) > Math.sqrt((params.Kvco * params.Ip) / 4 / params.C);
+}
+
 export function computeNext10(tauK, vK, params) {
   return computeNextN(10, tauK, vK, params);
 }
