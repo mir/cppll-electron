@@ -34,7 +34,11 @@
     </div>
     <span class="params">v_k = {{ vK }}</span>
     <div class="ranges">
-      <input type="range"  v-model="vKRange" name="vKRange"  min="0" max="100">
+      <input type="range"  v-model="vKRange" name="vKRange" min="0" max="100">
+    </div>
+    <span class="params">steps = {{ steps }}</span>
+    <div class="ranges">
+      <input type="range"  v-model="steps" name="steps" min="10" max="1000">
     </div>
     <tauv-chart :chart-data="datacollection"  id="chart"></tauv-chart>
   </div>
@@ -59,6 +63,7 @@
         IPRange: 30,
         RRange: 30,
         CRange: 60,
+        steps: 50,
       };
     },
     computed: {
@@ -88,7 +93,7 @@
         }];
       },
       log() {
-        return computeNextN(90, this.tauK, this.vK, this.params);
+        return computeNextN(this.steps, this.tauK, this.vK, this.params);
       },
       toMakeTrefRed() {
         return !inHoldIn(this.params);
