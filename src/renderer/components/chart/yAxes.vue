@@ -38,7 +38,7 @@
             label: tick,
           };
         };
-        return linearScale.ticks().map(toTick);
+        return linearScale.ticks(5).map(toTick);
       },
     },
   };
