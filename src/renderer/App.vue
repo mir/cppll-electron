@@ -1,5 +1,11 @@
 <template>
   <div id="app">
+    <d3-chart class="chart"
+              v-bind:data-points="log"
+              width="400"
+              height="200"
+              v-bind:x-range="xRange"
+              v-bind:y-range="yRange"/>
     <h1>CPPLL simulator</h1>
     <span class="params">C = {{ params.C }}</span>
     <div class="ranges">
@@ -40,17 +46,19 @@
     <div class="ranges">
       <input type="range"  v-model="steps" name="steps" min="10" max="1000">
     </div>
-    <tauv-chart :chart-data="datacollection"  id="chart"></tauv-chart>
+    <tauv-chart :chart-data="datacollection"  class="chart"></tauv-chart>
   </div>
 </template>
 
 <script>
   import { computeNextN, equilibria, inHoldIn, cycle3Exists } from './simulator/cppll.js';
   import tauvChart from './components/tauvChart';
+  import D3Chart from './components/d3Chart';
 
   export default {
     name: 'cppll-simulator',
     components: {
+      D3Chart,
       tauvChart,
     },
     data() {
@@ -94,6 +102,12 @@
       },
       log() {
         return computeNextN(this.steps, this.tauK, this.vK, this.params);
+      },
+      xRange() {
+        return [-this.params.Tref, this.params.Tref];
+      },
+      yRange() {
+        return [-this.eq[0].y, (this.eq[0].y * 3)];
       },
       toMakeTrefRed() {
         return !inHoldIn(this.params);
@@ -152,7 +166,7 @@
   .initialData {
     grid-column: span 12;
   }
-  #chart {
+  .chart {
     grid-column: span 12;
   }
 </style>
