@@ -107,7 +107,7 @@
         return [-this.params.Tref, this.params.Tref];
       },
       yRange() {
-        return [-this.eq[0].y, (this.eq[0].y * 3)];
+        return [0, (this.eq[0].y * 2.5)];
       },
       toMakeTrefRed() {
         return !inHoldIn(this.params);
