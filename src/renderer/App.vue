@@ -1,11 +1,5 @@
 <template>
   <div id="app">
-    <d3-chart class="chart"
-              v-bind:data-points="log"
-              width="400"
-              height="200"
-              v-bind:x-range="xRange"
-              v-bind:y-range="yRange"/>
     <h1>CPPLL simulator</h1>
     <span class="params">C = {{ params.C }}</span>
     <div class="ranges">
@@ -36,7 +30,7 @@
     <h3>Initial data</h3>
     <span class="params">tau_k = {{ tauK }}</span>
     <div class="ranges">
-      <input type="range"  v-model="tauKRange" name="tauKRange"  min="-50" max="50">
+      <input type="range"  v-model="tauKRange" name="tauKRange"  min="-50" max="100">
     </div>
     <span class="params">v_k = {{ vK }}</span>
     <div class="ranges">
@@ -46,20 +40,24 @@
     <div class="ranges">
       <input type="range"  v-model="steps" name="steps" min="10" max="1000">
     </div>
-    <tauv-chart :chart-data="datacollection"  class="chart"></tauv-chart>
+    <d3-chart class="chart"
+              v-bind:data-points="log"
+              v-bind:equilibrium="eq"
+              v-bind:width="plotWidth"
+              v-bind:height="plotHeight"
+              v-bind:x-range="xRange"
+              v-bind:y-range="yRange"/>
   </div>
 </template>
 
 <script>
   import { computeNextN, equilibria, inHoldIn, cycle3Exists } from './simulator/cppll.js';
-  import tauvChart from './components/tauvChart';
   import D3Chart from './components/d3Chart';
 
   export default {
     name: 'cppll-simulator',
     components: {
       D3Chart,
-      tauvChart,
     },
     data() {
       return {
@@ -72,6 +70,8 @@
         RRange: 30,
         CRange: 60,
         steps: 50,
+        plotWidth: 400,
+        plotHeight: 200,
       };
     },
     computed: {
@@ -104,7 +104,7 @@
         return computeNextN(this.steps, this.tauK, this.vK, this.params);
       },
       xRange() {
-        return [-this.params.Tref, this.params.Tref];
+        return [-this.params.Tref, (2 * this.params.Tref)];
       },
       yRange() {
         return [0, (this.eq[0].y * 2.5)];
@@ -114,24 +114,6 @@
       },
       toMakeTrefYellow() {
         return cycle3Exists(this.params);
-      },
-      datacollection() {
-        return {
-          datasets: [
-            {
-              label: 'equlibria',
-              backgroundColor: '#a0f841',
-              data: this.eq,
-            },
-            {
-              label: 'tau_k and v_k',
-              backgroundColor: '#f87979',
-              showLine: true,
-              fill: false,
-              data: this.log,
-            },
-          ],
-        };
       },
     },
   };

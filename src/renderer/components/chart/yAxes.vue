@@ -1,11 +1,11 @@
 <template>
     <g class="y axis">
-<!--        <path v-bind:d="lineData"/>-->
-        <horizontal-tick v-for="tick in ticks"
+        <horizontal-tick v-for="tick in ticks" :key="tick.value"
                        v-bind:y="tick.value"
-                       v-bind:x="x"
-                       v-bind:width="width"
-                       v-bind:label="tick.label"/>
+                       v-bind:x="plotArea.x"
+                       v-bind:width="plotArea.width"
+                       v-bind:label="tick.label"
+        />
     </g>
 </template>
 
@@ -16,29 +16,21 @@
   export default {
     name: 'yAxes',
     components: { HorizontalTick },
-    props: ['x', 'width', 'height', 'yData'],
+    props: ['yData', 'plotArea'],
     computed: {
-      lineData() {
-        const lineGenerator = d3.line();
-        const points = [
-          [this.x, 0],
-          [this.x, this.height],
-        ];
-        const pathData = lineGenerator(points);
-        return pathData;
-      },
       ticks() {
         const extent = d3.extent(this.yData);
         const linearScale = d3.scaleLinear()
           .domain(extent)
-          .range([this.height, 0]);
-        const toTick = function (tick) {
+          .range([this.plotArea.height, this.plotArea.y]);
+        const toTick = function toTick(tick) {
           return {
             value: linearScale(tick),
             label: tick,
           };
         };
-        return linearScale.ticks(5).map(toTick);
+        return linearScale.ticks(5)
+          .map(toTick);
       },
     },
   };

@@ -1,14 +1,20 @@
 <template>
     <svg v-bind:width="width" v-bind:height="height">
-        <path v-bind:d="svgData" />
-        <x-axes v-bind:y="centerPointY"
-                v-bind:width="width"
-                v-bind:height="height"
-                v-bind:xData="xRange"/>
-        <y-axes v-bind:x="centerPointX"
-                v-bind:width="width"
-                v-bind:height="height"
-                v-bind:yData="yRange"/>
+        <x-axes v-bind:xData="xRange"
+                v-bind:plotArea="plotArea"
+                />
+        <y-axes v-bind:yData="yRange"
+                v-bind:plotArea="plotArea"/>
+        <path v-bind:d="pathData" />
+        <circle v-for="(point, index) in points" :key="index"
+                v-bind:cx="point[0]"
+                v-bind:cy="point[1]"
+                class="vertex"/>
+
+        <circle
+                v-bind:cx="eqX"
+                v-bind:cy="eqY"
+                class="eq"/>
     </svg>
 </template>
 
@@ -29,8 +35,11 @@
         required: true,
       },
       dataPoints: {
-        type: Object,
+        type: Array,
         required: true,
+      },
+      equilibrium: {
+        type: Array,
       },
       xRange: {
         type: Array,
@@ -51,7 +60,7 @@
       centerPointX: {
         type: Number,
         default() {
-          return 10;
+          return 0;
         },
       },
       centerPointY: {
@@ -62,18 +71,43 @@
       },
     },
     components: { YAxes, XAxes },
+    data() {
+      return {
+        plotArea: {
+          x: 20,
+          y: 20,
+          height: this.height - 20,
+          width: this.width - 20,
+        },
+      };
+    },
     computed: {
-      svgData() {
+      points() {
+        return this.dataPoints
+          .map(point => [this.xScale(point.x), this.yScale(point.y)]);
+      },
+      pathData() {
         const lineGenerator = d3.line();
-        const xScale = d3.scaleLinear()
-          .domain(this.xRange)
-          .range([0, this.width]);
-        const yScale = d3.scaleLinear()
-          .domain(this.yRange)
-          .range([0, this.height]);
-        const points = this.dataPoints.map(point => [xScale(point.x), this.height - yScale(point.y)]);
-        const pathData = lineGenerator(points);
+        const pathData = lineGenerator(this.points);
         return pathData;
+      },
+      eqX() {
+        return this.xScale(this.equilibrium[0].x);
+      },
+      eqY() {
+        return this.yScale(this.equilibrium[0].y);
+      },
+    },
+    methods: {
+      xScale(x) {
+        return d3.scaleLinear()
+          .domain(this.xRange)
+          .range([this.plotArea.x, this.plotArea.width])(x);
+      },
+      yScale(y) {
+        return d3.scaleLinear()
+          .domain(this.yRange)
+          .range([this.plotArea.height, this.plotArea.y])(y);
       },
     },
   };
@@ -82,6 +116,16 @@
 <style scoped>
     path {
         fill: none;
-        stroke: #999;
+        stroke: #232323;
+    }
+    .vertex {
+        r: 3;
+        fill: #f3524f;
+        stroke: #f3524f;
+    }
+    .eq {
+        r: 3;
+        fill: #5bf316;
+        stroke: #262424;
     }
 </style>

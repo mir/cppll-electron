@@ -1,7 +1,7 @@
 <template>
     <g class="tick">
         <path v-bind:d="lineData"/>
-        <text v-bind:x="x" v-bind:y="y" dy="5">{{ label }}</text>
+        <text v-bind:x="x" v-bind:y="y" dy="5" dx="-20">{{ label }}</text>
     </g>
 </template>
 
@@ -15,7 +15,7 @@
       lineData() {
         const lineGenerator = d3.line();
         const points = [
-          [0, this.y],
+          [this.x, this.y],
           [this.width, this.y],
         ];
         const pathData = lineGenerator(points);

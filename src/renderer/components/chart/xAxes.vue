@@ -1,10 +1,9 @@
 <template>
     <g class="x axis">
-<!--        <path v-bind:d="lineData"/>-->
-        <vertical-tick v-for="tick in ticks"
+        <vertical-tick v-for="tick in ticks" :key="tick.value"
                        v-bind:x="tick.value"
-                       v-bind:y="y"
-                       v-bind:height="height"
+                       v-bind:y="plotArea.height"
+                       v-bind:height="plotArea.height - plotArea.y"
                        v-bind:label="tick.label"/>
     </g>
 </template>
@@ -16,29 +15,21 @@
   export default {
     name: 'xAxes',
     components: { VerticalTick },
-    props: ['y', 'width', 'height', 'xData'],
+    props: ['xData', 'plotArea'],
     computed: {
-      lineData() {
-        const lineGenerator = d3.line();
-        const points = [
-          [0, this.y],
-          [this.width, this.y],
-        ];
-        const pathData = lineGenerator(points);
-        return pathData;
-      },
       ticks() {
         const extent = d3.extent(this.xData);
         const linearScale = d3.scaleLinear()
           .domain(extent)
-          .range([0, this.width]);
-        const toTick = function (tick) {
+          .range([this.plotArea.x, this.plotArea.width]);
+        const toTick = function toTick(tick) {
           return {
             value: linearScale(tick),
             label: tick,
           };
         };
-        return linearScale.ticks(5).map(toTick);
+        return linearScale.ticks(5)
+          .map(toTick);
       },
     },
   };
