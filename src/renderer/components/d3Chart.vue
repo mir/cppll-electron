@@ -1,5 +1,8 @@
 <template>
-    <svg v-bind:width="width" v-bind:height="height">
+    <svg id="svg"
+         v-bind:width="width"
+         v-bind:height="height"
+         v-on:click="mouseClick">
         <x-axes v-bind:xData="xRange"
                 v-bind:plotArea="plotArea"
                 />
@@ -15,6 +18,10 @@
                 v-bind:cx="eqX"
                 v-bind:cy="eqY"
                 class="eq"/>
+        <circle
+                v-bind:cx="mouseX"
+                v-bind:cy="mouseY"
+                class="vertex"/>
     </svg>
 </template>
 
@@ -73,6 +80,8 @@
     components: { YAxes, XAxes },
     data() {
       return {
+        mouseX: 0,
+        mouseY: 0,
         plotArea: {
           x: 20,
           y: 20,
@@ -108,6 +117,15 @@
         return d3.scaleLinear()
           .domain(this.yRange)
           .range([this.plotArea.height, this.plotArea.y])(y);
+      },
+      mouseClick(e) {
+        const svg = document.getElementById('svg');
+        const pt = svg.createSVGPoint();
+        pt.x = e.clientX;
+        pt.y = e.clientY;
+        const res = pt.matrixTransform(svg.getScreenCTM().inverse());
+        this.mouseX = res.x;
+        this.mouseY = res.y;
       },
     },
   };

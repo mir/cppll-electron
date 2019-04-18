@@ -61,6 +61,7 @@
     },
     data() {
       return {
+        electron: 0,
         tauKRange: 0,
         vKRange: 10,
         omegaFreeRange: 0,
@@ -70,7 +71,6 @@
         RRange: 30,
         CRange: 60,
         steps: 50,
-        plotWidth: 400,
         plotHeight: 200,
       };
     },
@@ -114,6 +114,9 @@
       },
       toMakeTrefYellow() {
         return cycle3Exists(this.params);
+      },
+      plotWidth() {
+        return 400;
       },
     },
   };
