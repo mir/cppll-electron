@@ -33,10 +33,6 @@
                 v-bind:cx="eqX"
                 v-bind:cy="eqY"
                 class="eq"/>
-        <circle
-                v-bind:cx="mouseX"
-                v-bind:cy="mouseY"
-                class="vertex"/>
     </svg>
 </template>
 

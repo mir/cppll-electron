@@ -78,13 +78,15 @@
     },
     computed: {
       params() {
+        const Tref = 1 / (10 ** (this.omegaRefRange / 10));
+        const omegaFree = this.omegaFreeRange / (Tref * 200);
         return {
           R: 10 ** (this.RRange / 10),
           Ip: 0.1 ** (this.IPRange / 10),
           C: 0.1 ** (this.CRange / 10),
           Kvco: this.KVCORange,
-          Tref: 1 / (10 ** (this.omegaRefRange / 10)),
-          omegaFree: (10 ** (this.omegaFreeRange / 10)) - 1,
+          Tref,
+          omegaFree,
         };
       },
       eq() {
