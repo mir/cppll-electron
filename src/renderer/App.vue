@@ -29,24 +29,24 @@
     </div>
     <h3>Initial data</h3>
     <span class="params">tau_k = {{ tauK }}</span>
-    <div class="ranges">
-      <input type="range"  v-model="tauKRange" name="tauKRange"  min="-50" max="100">
-    </div>
     <span class="params">v_k = {{ vK }}</span>
-    <div class="ranges">
-      <input type="range"  v-model="vKRange" name="vKRange" min="0" max="100">
-    </div>
-    <span class="params">steps = {{ steps }}</span>
-    <div class="ranges">
-      <input type="range"  v-model="steps" name="steps" min="10" max="1000">
-    </div>
     <d3-chart class="chart"
               v-bind:data-points="log"
+              v-bind:secondary-data="log2"
               v-bind:equilibrium="eq"
               v-bind:width="plotWidth"
               v-bind:height="plotHeight"
               v-bind:x-range="xRange"
-              v-bind:y-range="yRange"/>
+              v-bind:y-range="yRange"
+              v-bind:suggest-data="suggestIC"/>
+    <span class="params">steps = {{ steps }}</span>
+    <div class="ranges">
+      <input type="range"  v-model="steps" name="steps" min="10" max="1000">
+    </div>
+    <span class="params">nearby points = {{ nearPoints }}</span>
+    <div class="ranges">
+      <input type="range" v-model="nearPoints" name="steps" min="0" max="20">
+    </div>
   </div>
 </template>
 
@@ -62,8 +62,6 @@
     data() {
       return {
         electron: 0,
-        tauKRange: 0,
-        vKRange: 10,
         omegaFreeRange: 0,
         omegaRefRange: 30,
         KVCORange: 500,
@@ -71,7 +69,10 @@
         RRange: 30,
         CRange: 60,
         steps: 50,
+        nearPoints: 5,
         plotHeight: 200,
+        tauK: 0,
+        vK: 1,
       };
     },
     computed: {
@@ -85,15 +86,6 @@
           omegaFree: (10 ** (this.omegaFreeRange / 10)) - 1,
         };
       },
-      tauK() {
-        return (this.params.Tref * this.tauKRange) / 50;
-      },
-      vK() {
-        let to = this.vKRange / 50.0;
-        if (to > 10) { to = 10; }
-        if (to < 0) { to = 0; }
-        return (10 ** to) - 1;
-      },
       eq() {
         return [{
           x: equilibria(this.params).tauK,
@@ -103,11 +95,26 @@
       log() {
         return computeNextN(this.steps, this.tauK, this.vK, this.params);
       },
+      log2() {
+        let addLog = [];
+        for (let i = 1; i <= this.nearPoints; i += 1) {
+          const angle = (2 * Math.PI * i) / this.nearPoints;
+          const dTau = Math.cos(angle) * this.params.Tref * 0.05;
+          const dv = Math.sin(angle) * equilibria(this.params).vK * 0.1;
+          const newLog = this.compute(this.tauK + dTau, this.vK + dv);
+          if (i % 2 === 0) {
+            addLog = addLog.concat(newLog.reverse());
+          } else {
+            addLog = addLog.concat(newLog);
+          }
+        }
+        return addLog;
+      },
       xRange() {
         return [-this.params.Tref, (2 * this.params.Tref)];
       },
       yRange() {
-        return [0, (this.eq[0].y * 2.5)];
+        return [-this.eq[0].y, (this.eq[0].y * 2.5)];
       },
       toMakeTrefRed() {
         return !inHoldIn(this.params);
@@ -117,6 +124,15 @@
       },
       plotWidth() {
         return 400;
+      },
+    },
+    methods: {
+      suggestIC(tau, v) {
+        this.tauK = tau;
+        this.vK = v;
+      },
+      compute(tau, v) {
+        return computeNextN(this.steps, tau, v, this.params);
       },
     },
   };

@@ -8,11 +8,24 @@
                 />
         <y-axes v-bind:yData="yRange"
                 v-bind:plotArea="plotArea"/>
+
+
+        <g class="secondary">
+            <path v-bind:d="secondaryPathData" class="path-grey"/>
+            <circle v-for="(point, index) in secondaryPoints" :key="index"
+                    v-bind:cx="point[0]"
+                    v-bind:cy="point[1]"
+                    class="vertex-grey"/>
+        </g>
+
         <path v-bind:d="pathData" />
+
+        <g class="data-circles">
         <circle v-for="(point, index) in points" :key="index"
                 v-bind:cx="point[0]"
                 v-bind:cy="point[1]"
                 class="vertex"/>
+        </g>
 
         <circle
                 v-bind:cx="eqX"
@@ -45,6 +58,12 @@
         type: Array,
         required: true,
       },
+      secondaryData: {
+        type: Array,
+        default() {
+          return [{ x: 0, y: 0 }];
+        },
+      },
       equilibrium: {
         type: Array,
       },
@@ -64,17 +83,8 @@
           return extent;
         },
       },
-      centerPointX: {
-        type: Number,
-        default() {
-          return 0;
-        },
-      },
-      centerPointY: {
-        type: Number,
-        default() {
-          return this.height;
-        },
+      suggestData: {
+        type: Function,
       },
     },
     components: { YAxes, XAxes },
@@ -95,9 +105,18 @@
         return this.dataPoints
           .map(point => [this.xScale(point.x), this.yScale(point.y)]);
       },
+      secondaryPoints() {
+        return this.secondaryData
+          .map(point => [this.xScale(point.x), this.yScale(point.y)]);
+      },
       pathData() {
         const lineGenerator = d3.line();
         const pathData = lineGenerator(this.points);
+        return pathData;
+      },
+      secondaryPathData() {
+        const lineGenerator = d3.line();
+        const pathData = lineGenerator(this.secondaryPoints);
         return pathData;
       },
       eqX() {
@@ -113,10 +132,22 @@
           .domain(this.xRange)
           .range([this.plotArea.x, this.plotArea.width])(x);
       },
+      xScaleInvert(x) {
+        return d3.scaleLinear()
+          .domain(this.xRange)
+          .range([this.plotArea.x, this.plotArea.width])
+          .invert(x);
+      },
       yScale(y) {
         return d3.scaleLinear()
           .domain(this.yRange)
           .range([this.plotArea.height, this.plotArea.y])(y);
+      },
+      yScaleInvert(y) {
+        return d3.scaleLinear()
+          .domain(this.yRange)
+          .range([this.plotArea.height, this.plotArea.y])
+          .invert(y);
       },
       mouseClick(e) {
         const svg = document.getElementById('svg');
@@ -126,6 +157,7 @@
         const res = pt.matrixTransform(svg.getScreenCTM().inverse());
         this.mouseX = res.x;
         this.mouseY = res.y;
+        this.suggestData(this.xScaleInvert(res.x), this.yScaleInvert(res.y));
       },
     },
   };
@@ -141,9 +173,18 @@
         fill: #f3524f;
         stroke: #f3524f;
     }
+    .vertex-grey {
+        r: 1;
+        fill: #f3d1d0;
+        stroke: #f3c2c2;
+    }
     .eq {
         r: 3;
         fill: #5bf316;
         stroke: #262424;
+    }
+    .path-grey {
+        fill: none;
+        stroke: #bebebe;
     }
 </style>
