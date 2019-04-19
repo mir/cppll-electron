@@ -38,7 +38,8 @@
               v-bind:height="plotHeight"
               v-bind:x-range="xRange"
               v-bind:y-range="yRange"
-              v-bind:suggest-data="suggestIC"/>
+              v-bind:suggest-data="suggestIC"
+              v-bind:v-overload="vOverload"/>
     <span class="params">steps = {{ steps }}</span>
     <div class="ranges">
       <input type="range"  v-model="steps" name="steps" min="10" max="1000">
@@ -91,6 +92,9 @@
           x: equilibria(this.params).tauK,
           y: equilibria(this.params).vK,
         }];
+      },
+      vOverload() {
+        return -(this.params.omegaFree / this.params.Kvco);
       },
       log() {
         return computeNextN(this.steps, this.tauK, this.vK, this.params);

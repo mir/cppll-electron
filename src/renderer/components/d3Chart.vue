@@ -3,12 +3,14 @@
          v-bind:width="width"
          v-bind:height="height"
          v-on:click="mouseClick">
+
+        <path v-bind:d="grayAreaPathData" class="overload-path"/>
+
         <x-axes v-bind:xData="xRange"
                 v-bind:plotArea="plotArea"
                 />
         <y-axes v-bind:yData="yRange"
                 v-bind:plotArea="plotArea"/>
-
 
         <g class="secondary">
             <path v-bind:d="secondaryPathData" class="path-grey"/>
@@ -86,6 +88,10 @@
       suggestData: {
         type: Function,
       },
+      vOverload: {
+        type: Number,
+        default: 0,
+      },
     },
     components: { YAxes, XAxes },
     data() {
@@ -117,6 +123,16 @@
       secondaryPathData() {
         const lineGenerator = d3.line();
         const pathData = lineGenerator(this.secondaryPoints);
+        return pathData;
+      },
+      grayAreaPathData() {
+        const y = this.yScale(this.vOverload);
+        const path = [[this.plotArea.x, this.plotArea.height]];
+        path.push([this.plotArea.x, y]);
+        path.push([this.plotArea.width, y]);
+        path.push([this.plotArea.width, this.plotArea.height]);
+        const lineGenerator = d3.line();
+        const pathData = lineGenerator(path);
         return pathData;
       },
       eqX() {
@@ -186,5 +202,9 @@
     .path-grey {
         fill: none;
         stroke: #bebebe;
+    }
+    .overload-path {
+        fill: #e5edff;
+        stroke: none;
     }
 </style>
