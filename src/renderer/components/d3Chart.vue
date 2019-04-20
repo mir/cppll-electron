@@ -12,6 +12,12 @@
         <y-axes v-bind:yData="yRange"
                 v-bind:plotArea="plotArea"/>
 
+        <g class="sectors">
+            <path v-bind:d="sectorLine1PathData" />
+            <path v-bind:d="sectorLine2PathData" />
+            <path v-bind:d="sectorLine3PathData" />
+        </g>
+
         <g class="secondary">
             <path v-bind:d="secondaryPathData" class="path-grey"/>
             <circle v-for="(point, index) in secondaryPoints" :key="index"
@@ -57,6 +63,18 @@
         required: true,
       },
       secondaryData: {
+        type: Array,
+        default() {
+          return [{ x: 0, y: 0 }];
+        },
+      },
+      sectorLine1Data: {
+        type: Array,
+        default() {
+          return [{ x: 0, y: 0 }];
+        },
+      },
+      sectorLine2Data: {
         type: Array,
         default() {
           return [{ x: 0, y: 0 }];
@@ -112,14 +130,10 @@
           .map(point => [this.xScale(point.x), this.yScale(point.y)]);
       },
       pathData() {
-        const lineGenerator = d3.line();
-        const pathData = lineGenerator(this.points);
-        return pathData;
+        return this.getPathData(this.dataPoints);
       },
       secondaryPathData() {
-        const lineGenerator = d3.line();
-        const pathData = lineGenerator(this.secondaryPoints);
-        return pathData;
+        return this.getPathData(this.secondaryData);
       },
       grayAreaPathData() {
         const y = this.yScale(this.vOverload);
@@ -131,6 +145,16 @@
         const pathData = lineGenerator(path);
         return pathData;
       },
+      sectorLine1PathData() {
+        return this.getPathData(this.sectorLine1Data);
+      },
+      sectorLine2PathData() {
+        return this.getPathData([{ x: 0, y: this.equilibrium[0].y * 2.5 },
+          { x: 0, y: -this.equilibrium[0].y }]);
+      },
+      sectorLine3PathData() {
+        return this.getPathData(this.sectorLine2Data);
+      },
       eqX() {
         return this.xScale(this.equilibrium[0].x);
       },
@@ -139,6 +163,12 @@
       },
     },
     methods: {
+      getPathData(arrayOfXY) {
+        const convertedPoints = arrayOfXY.map(point => [this.xScale(point.x), this.yScale(point.y)]);
+        const lineGenerator = d3.line();
+        const pathData = lineGenerator(convertedPoints);
+        return pathData;
+      },
       xScale(x) {
         return d3.scaleLinear()
           .domain(this.xRange)
@@ -202,5 +232,10 @@
     .overload-path {
         fill: #e5edff;
         stroke: none;
+    }
+    .sectors path {
+        fill: none;
+        stroke: #404040;
+        stroke-width: 2;
     }
 </style>

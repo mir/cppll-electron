@@ -39,7 +39,9 @@
               v-bind:x-range="xRange"
               v-bind:y-range="yRange"
               v-bind:suggest-data="suggestIC"
-              v-bind:v-overload="vOverload"/>
+              v-bind:v-overload="vOverload"
+              v-bind:sector-line1-data="sector1"
+              v-bind:sector-line2-data="sector2"/>
     <span class="params">steps = {{ steps }}</span>
     <div class="ranges">
       <input type="range"  v-model="steps" name="steps" min="10" max="1000">
@@ -52,7 +54,7 @@
 </template>
 
 <script>
-  import { computeNextN, equilibria, inHoldIn, cycle3Exists } from './simulator/cppll.js';
+  import { computeNextN, equilibria, inHoldIn, cycle3Exists, getSector1, getSector2 } from './simulator/cppll.js';
   import D3Chart from './components/d3Chart';
 
   export default {
@@ -115,6 +117,12 @@
           }
         }
         return addLog;
+      },
+      sector1() {
+        return getSector1(this.params, this.params.Tref * 2.1, this.params.Tref * 0.1);
+      },
+      sector2() {
+        return getSector2(this.params, -this.params.Tref, -this.params.Tref * 0.1);
       },
       xRange() {
         return [-this.params.Tref, (2 * this.params.Tref)];

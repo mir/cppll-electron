@@ -1,5 +1,6 @@
 import noOverload from './noOverload';
 import { overload, overloadCondition } from './overload';
+import { rem } from './mathLib';
 
 export function computeNext(tauK, vK, params) {
   let result = noOverload(tauK, vK, params);
@@ -42,4 +43,30 @@ export function computeNext10(tauK, vK, params) {
 
 export function computeNext100(tauK, vK, params) {
   return computeNextN(100, tauK, vK, params);
+}
+
+export function getSector1(params, maxTau, precision) {
+  const results = [{ x: 0, y: 0 }];
+  for (let tau = 0; tau < maxTau; tau += precision) {
+    let v = 1 / (params.Tref - rem(tau, params.Tref));
+    v = (v - params.omegaFree) / params.Kvco;
+    results.push({ x: tau, y: v });
+  }
+  return results;
+}
+
+export function getSector2(params, minTau, precision) {
+  const results = [{ x: 0, y: 0 }];
+  let tau = 0;
+  while (tau > minTau) {
+    const last = (params.Kvco * params.Ip * tau * tau) / (2 * params.C);
+    let v = (1 - (params.Tref * params.omegaFree));
+    v -= (tau * (params.Ip * params.R * params.Kvco));
+    v += (tau * params.omegaFree);
+    v -= last;
+    v /= ((params.Kvco * tau) + (params.Tref * params.Kvco));
+    results.push({ x: tau, y: v });
+    tau += precision;
+  }
+  return results;
 }
