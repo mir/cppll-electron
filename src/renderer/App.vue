@@ -122,7 +122,7 @@
         return getSector1(this.params, this.params.Tref * 2.1, this.params.Tref * 0.1);
       },
       sector2() {
-        return getSector2(this.params, -this.params.Tref, -this.params.Tref * 0.1);
+        return getSector2(this.params, -1.1 * this.params.Tref, -this.params.Tref * 0.1);
       },
       xRange() {
         return [-this.params.Tref, (2 * this.params.Tref)];
