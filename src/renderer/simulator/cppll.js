@@ -55,6 +55,13 @@ export function getSector1(params, maxTau, precision) {
   return results;
 }
 
+function checkSectorMod1(tau, v, params, last) {
+  let check = last - (tau * params.Kvco * v);
+  check += (tau * (params.Ip * params.R * params.Kvco));
+  check -= params.omegaFree * tau;
+  return check;
+}
+
 export function getSector2(params, minTau, precision) {
   const results = [{ x: 0, y: 0 }];
   let tau = 0;
@@ -65,10 +72,8 @@ export function getSector2(params, minTau, precision) {
     v += (tau * params.omegaFree);
     v -= last;
     v /= ((params.Tref * params.Kvco) - (params.Kvco * tau));
-    let check = last - (tau * params.Kvco * v);
-    check += (tau * (params.Ip * params.R * params.Kvco));
-    check -= params.omegaFree * tau;
-    if (check > 1 || check < -1) break;
+    const check = checkSectorMod1(tau, v, params, last);
+    if (check < 0 || check > 1) break;
     results.push({ x: tau, y: v });
     tau += precision;
   }
