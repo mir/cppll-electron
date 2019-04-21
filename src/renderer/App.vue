@@ -64,6 +64,12 @@
     <div class="ranges">
       <input type="range" v-model="nearPoints" name="nearPoints" min="0" max="20">
     </div>
+    <span class="params">radius</span>
+    <div class="ranges">
+      <input type="range" v-model="nearPointsRadius"
+             name="nearPointsRadius"
+             min="0.1" max="10" step="0.1">
+    </div>
   </div>
 </template>
 
@@ -81,6 +87,7 @@
       return {
         xZoom: 1,
         yZoom: 1,
+        nearPointsRadius: 1,
         electron: 0,
         omegaFreeRange: 0,
         omegaRefRange: 30,
@@ -124,8 +131,10 @@
         let addLog = [];
         for (let i = 1; i <= this.nearPoints; i += 1) {
           const angle = (2 * Math.PI * i) / this.nearPoints;
-          const dTau = Math.cos(angle) * this.params.Tref * 0.05;
-          const dv = Math.sin(angle) * equilibria(this.params).vK * 0.1;
+          let dTau = Math.cos(angle) * this.params.Tref * 0.05;
+          let dv = Math.sin(angle) * equilibria(this.params).vK * 0.1;
+          dTau /= this.nearPointsRadius;
+          dv /= this.nearPointsRadius;
           const newLog = this.compute(this.tauK + dTau, this.vK + dv);
           if (i % 2 === 0) {
             addLog = addLog.concat(newLog.reverse());
