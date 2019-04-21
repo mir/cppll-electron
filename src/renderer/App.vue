@@ -29,9 +29,17 @@
     </div>
     <h3>Initial data</h3>
     <span class="params">tau_k = {{ tauK }}</span>
+    <span class="ranges"></span>
     <span class="params">v_k = {{ vK }}</span>
-    <d3-chart class="chart"
-              v-bind:data-points="log"
+    <span class="ranges"></span>
+    <input type="range"
+           v-model="yZoom"
+           name="yZoom"
+           min="0.1" max="10" step="0.1"
+           class="vertical-slider"
+           orient="vertical">
+    <div class="chart">
+      <d3-chart v-bind:data-points="log"
               v-bind:secondary-data="log2"
               v-bind:equilibrium="eq"
               v-bind:width="plotWidth"
@@ -39,16 +47,22 @@
               v-bind:x-range="xRange"
               v-bind:y-range="yRange"
               v-bind:suggest-data="suggestIC"
-              v-bind:v-overload="vOverload"
+              v-bind:v-overload="overloadFunc"
               v-bind:sector-line1-data="sector1"
               v-bind:sector-line2-data="sector2"/>
+      <input type="range"
+             v-model="xZoom"
+             name="xZoom"
+             min="0.1" max="10" step="0.1"
+             class="wide-slider">
+    </div>
     <span class="params">steps = {{ steps }}</span>
     <div class="ranges">
       <input type="range"  v-model="steps" name="steps" min="10" max="1000">
     </div>
     <span class="params">nearby points = {{ nearPoints }}</span>
     <div class="ranges">
-      <input type="range" v-model="nearPoints" name="steps" min="0" max="20">
+      <input type="range" v-model="nearPoints" name="nearPoints" min="0" max="20">
     </div>
   </div>
 </template>
@@ -56,6 +70,7 @@
 <script>
   import { computeNextN, equilibria, inHoldIn, cycle3Exists, getSector1, getSector2 } from './simulator/cppll.js';
   import D3Chart from './components/d3Chart';
+  import { vOverload } from './simulator/overload';
 
   export default {
     name: 'cppll-simulator',
@@ -64,6 +79,8 @@
     },
     data() {
       return {
+        xZoom: 1,
+        yZoom: 1,
         electron: 0,
         omegaFreeRange: 0,
         omegaRefRange: 30,
@@ -72,7 +89,7 @@
         RRange: 30,
         CRange: 60,
         steps: 50,
-        nearPoints: 5,
+        nearPoints: 0,
         plotHeight: 200,
         tauK: 0,
         vK: 1,
@@ -118,17 +135,18 @@
         }
         return addLog;
       },
-      sector1() {
-        return getSector1(this.params, this.params.Tref * 2.1, this.params.Tref * 0.1);
-      },
-      sector2() {
-        return getSector2(this.params, -1.1 * this.params.Tref, -this.params.Tref * 0.1);
-      },
       xRange() {
-        return [-this.params.Tref, (2 * this.params.Tref)];
+        return [-this.params.Tref / this.xZoom, ((2 * this.params.Tref) / this.xZoom)];
       },
       yRange() {
-        return [-this.eq[0].y, (this.eq[0].y * 2.5)];
+        return [this.eq[0].y - (this.eq[0].y / this.yZoom),
+          this.eq[0].y + ((this.eq[0].y * 1.5) / this.yZoom)];
+      },
+      sector1() {
+        return getSector1(this.params, this.xRange[1], this.params.Tref * 0.05);
+      },
+      sector2() {
+        return getSector2(this.params, this.xRange[0], -this.params.Tref * 0.1);
       },
       toMakeTrefRed() {
         return !inHoldIn(this.params);
@@ -147,6 +165,9 @@
       },
       compute(tau, v) {
         return computeNextN(this.steps, tau, v, this.params);
+      },
+      overloadFunc(tau) {
+        return vOverload(tau, this.params);
       },
     },
   };
@@ -182,6 +203,19 @@
     grid-column: span 12;
   }
   .chart {
-    grid-column: span 12;
+    grid-column: span 11;
+    text-align: center;
+  }
+  .vertical-slider {
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* WebKit */
+    grid-column: span 1;
+    width: 10px;
+    height: 160px;
+    margin-top: 20px;
+  }
+  .wide-slider {
+    width: 90%;
+    text-align: center;
   }
 </style>

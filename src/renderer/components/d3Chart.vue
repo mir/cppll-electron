@@ -103,8 +103,7 @@
         type: Function,
       },
       vOverload: {
-        type: Number,
-        default: 0,
+        type: Function,
       },
     },
     components: { YAxes, XAxes },
@@ -136,10 +135,16 @@
         return this.getPathData(this.secondaryData);
       },
       grayAreaPathData() {
-        const y = this.yScale(this.vOverload);
         const path = [[this.plotArea.x, this.plotArea.height]];
-        path.push([this.plotArea.x, y]);
-        path.push([this.plotArea.width, y]);
+        let tau = this.xRange[0];
+        const precision = (this.xRange[1] - this.xRange[0]) / 100;
+        while (tau < this.xRange[1]) {
+          const y = this.yScale(this.vOverload(tau));
+          path.push([this.xScale(tau), y]);
+          tau += precision;
+        }
+        const y = this.yScale(this.vOverload(this.xRange[1]));
+        path.push([this.xScale(tau), y]);
         path.push([this.plotArea.width, this.plotArea.height]);
         const lineGenerator = d3.line();
         const pathData = lineGenerator(path);
@@ -149,8 +154,8 @@
         return this.getPathData(this.sectorLine1Data);
       },
       sectorLine2PathData() {
-        return this.getPathData([{ x: 0, y: this.equilibrium[0].y * 2.5 },
-          { x: 0, y: -this.equilibrium[0].y }]);
+        return this.getPathData([{ x: 0, y: this.yRange[0] },
+          { x: 0, y: this.yRange[1] }]);
       },
       sectorLine3PathData() {
         return this.getPathData(this.sectorLine2Data);
@@ -169,10 +174,18 @@
         const pathData = lineGenerator(convertedPoints);
         return pathData;
       },
+      fitToRange(x, range) {
+        let toScale = x;
+        const [from, to] = range;
+        if (x > to) toScale = to;
+        if (x < from) toScale = from;
+        return toScale;
+      },
       xScale(x) {
+        const toScale = this.fitToRange(x, this.xRange);
         return d3.scaleLinear()
           .domain(this.xRange)
-          .range([this.plotArea.x, this.plotArea.width])(x);
+          .range([this.plotArea.x, this.plotArea.width])(toScale);
       },
       xScaleInvert(x) {
         return d3.scaleLinear()
@@ -181,9 +194,10 @@
           .invert(x);
       },
       yScale(y) {
+        const toScale = this.fitToRange(y, this.yRange);
         return d3.scaleLinear()
           .domain(this.yRange)
-          .range([this.plotArea.height, this.plotArea.y])(y);
+          .range([this.plotArea.height, this.plotArea.y])(toScale);
       },
       yScaleInvert(y) {
         return d3.scaleLinear()
