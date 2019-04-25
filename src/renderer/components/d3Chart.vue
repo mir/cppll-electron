@@ -39,6 +39,8 @@
                 v-bind:cx="eqX"
                 v-bind:cy="eqY"
                 class="eq"/>
+
+        <path v-bind:d="framePathData" stroke-width="2"/>
     </svg>
 </template>
 
@@ -120,6 +122,15 @@
       };
     },
     computed: {
+      framePathData() {
+        const dataPoints = [{ x: this.xRange[0], y: this.yRange[0] },
+          { x: this.xRange[0], y: this.yRange[1] },
+          { x: this.xRange[1], y: this.yRange[1] },
+          { x: this.xRange[1], y: this.yRange[0] },
+          { x: this.xRange[0], y: this.yRange[0] },
+        ];
+        return this.getPathData(dataPoints);
+      },
       points() {
         return this.dataPoints
           .map(point => [this.xScale(point.x), this.yScale(point.y)]);

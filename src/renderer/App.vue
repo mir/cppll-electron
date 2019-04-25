@@ -1,36 +1,36 @@
 <template>
   <div id="app">
     <h1>CPPLL simulator</h1>
-    <span class="params">C = {{ params.C }}</span>
+    <span class="params">C = {{ params.C.toExponential(3) }}</span>
     <div class="ranges">
       <input type="range" v-model.number="CRange" min="0" max="100" />
     </div>
-    <span class="params">R = {{ params.R }}</span>
+    <span class="params">R = {{ params.R.toExponential(3) }}</span>
     <div class="ranges">
       <input type="range" v-model.number="RRange" min="0" max="100"/>
     </div>
-    <span class="params">I_p = {{ params.Ip }}</span>
+    <span class="params">I_p = {{ params.Ip.toExponential(3) }}</span>
     <div class="ranges">
       <input type="range" v-model.number="IPRange" min="0" max="100"/>
     </div>
-    <span class="params">K_vco = {{ params.Kvco }}</span>
+    <span class="params">K_vco = {{ params.Kvco.toExponential(3) }}</span>
     <div class="ranges">
       <input type="range" v-model.number="KVCORange" min="1" max="1000"/>
     </div>
     <span class="params" v-bind:class="{ yellowText: toMakeTrefYellow, redText: toMakeTrefRed }" >
-      T_ref = {{ params.Tref }}
+      T_ref = {{ params.Tref.toExponential(3) }}
     </span>
     <div class="ranges">
       <input type="range" v-model.number="omegaRefRange" min="1" max="100"/>
     </div>
-    <span class="params">omega_free = {{ params.omegaFree }}</span>
+    <span class="params">omega_free = {{ params.omegaFree.toExponential(3) }}</span>
     <div class="ranges">
       <input type="range" v-model.number="omegaFreeRange" min="0" max="100"/>
     </div>
     <h3>Initial data</h3>
-    <span class="params">tau_k = {{ tauK }}</span>
+    <span class="params">tau_k = {{ tauK.toExponential(3) }}</span>
     <span class="ranges"></span>
-    <span class="params">v_k = {{ vK }}</span>
+    <span class="params">v_k = {{ vK.toExponential(3) }}</span>
     <span class="ranges"></span>
     <input type="range"
            v-model="yZoom"
