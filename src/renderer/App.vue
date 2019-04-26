@@ -1,37 +1,51 @@
 <template>
   <div id="app">
     <h1>CPPLL simulator</h1>
-    <span class="params">C = {{ params.C.toExponential(3) }}</span>
+    <div class="params">
+      C = <input v-model.number="par.C"
+                 type="number" min="1e-9" max="1e-1"/>
+    </div>
     <div class="ranges">
       <input type="range" v-model.number="CRange" min="0" max="100" />
     </div>
-    <span class="params">R = {{ params.R.toExponential(3) }}</span>
+    <div class="params">R = <input v-model.number="par.R"
+                                   type="number" min="1" max="1e9"/>
+    </div>
     <div class="ranges">
       <input type="range" v-model.number="RRange" min="0" max="100"/>
     </div>
-    <span class="params">I_p = {{ params.Ip.toExponential(3) }}</span>
+    <div class="params">
+      I_p = <input v-model.number="par.Ip"
+                   type="number" min="1e-9" max="1e-1"/>
+    </div>
     <div class="ranges">
       <input type="range" v-model.number="IPRange" min="0" max="100"/>
     </div>
-    <span class="params">K_vco = {{ params.Kvco.toExponential(3) }}</span>
+    <div class="params">K_vco = <input v-model.number="par.Kvco"
+                                       type="number" min="1" max="1e5"/></div>
     <div class="ranges">
       <input type="range" v-model.number="KVCORange" min="1" max="1000"/>
     </div>
-    <span class="params" v-bind:class="{ yellowText: toMakeTrefYellow, redText: toMakeTrefRed }" >
-      T_ref = {{ params.Tref.toExponential(3) }}
-    </span>
+    <div class="params" v-bind:class="{ yellowText: toMakeTrefYellow, redText: toMakeTrefRed }" >
+      T_ref = <input v-model.number="par.Tref"
+                     type="number" min="1e-9" max="1e-1"/>
+    </div>
     <div class="ranges">
       <input type="range" v-model.number="omegaRefRange" min="1" max="100"/>
     </div>
-    <span class="params">omega_free = {{ params.omegaFree.toExponential(3) }}</span>
+    <div class="params">omega_free = <input v-model.number="par.omegaFree"
+                                            type="number" min="1e-9" max="1e-1"/>
+    </div>
     <div class="ranges">
       <input type="range" v-model.number="omegaFreeRange" min="0" max="100"/>
     </div>
     <h3>Initial data</h3>
-    <span class="params">tau_k = {{ tauK.toExponential(3) }}</span>
-    <span class="ranges"></span>
-    <span class="params">v_k = {{ vK.toExponential(3) }}</span>
-    <span class="ranges"></span>
+    <div class="params">tau_k = <input v-model.number="tauK" type="number" v-bind:min="-params.Tref"/></div>
+    <div class="ranges">
+    </div>
+    <span class="params">v_k = <input v-model.number="vK" type="number"/></span>
+    <div class="ranges">
+    </div>
     <input type="range"
            v-model="yZoom"
            name="yZoom"
@@ -85,6 +99,14 @@
     },
     data() {
       return {
+        par: {
+          C: 0,
+          R: 0,
+          Ip: 0,
+          Kvco: 0,
+          Tref: 0,
+          omegaFree: 0,
+        },
         xZoom: 1,
         yZoom: 1,
         nearPointsRadius: 1,
@@ -106,7 +128,7 @@
       params() {
         const Tref = 1 / (10 ** (this.omegaRefRange / 10));
         const omegaFree = this.omegaFreeRange / (Tref * 200);
-        return {
+        const result = {
           R: 10 ** (this.RRange / 10),
           Ip: 0.1 ** (this.IPRange / 10),
           C: 0.1 ** (this.CRange / 10),
@@ -114,6 +136,8 @@
           Tref,
           omegaFree,
         };
+        this.par = result;
+        return result;
       },
       eq() {
         return [{
@@ -198,6 +222,10 @@
   }
   .params {
     grid-column: span 8;
+  }
+  input {
+    width: 110px;
+    border: none;
   }
   .yellowText.redText {
     background-color: #ff928e;

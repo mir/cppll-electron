@@ -1,5 +1,5 @@
 <template>
-    <svg id="svg"
+    <svg id="svg" ref="svg"
          v-bind:width="width"
          v-bind:height="height"
          v-on:click="mouseClick">
@@ -54,7 +54,9 @@
     props: {
       width: {
         type: Number,
-        required: true,
+        default() {
+          return this.$refs.svg.clientWidth;
+        },
       },
       height: {
         type: Number,
@@ -114,10 +116,10 @@
         mouseX: 0,
         mouseY: 0,
         plotArea: {
-          x: 20,
+          x: 30,
           y: 20,
           height: this.height - 20,
-          width: this.width - 20,
+          width: this.width - 30,
         },
       };
     },
