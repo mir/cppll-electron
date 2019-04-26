@@ -9,3 +9,4 @@ export function rem(x, base) {
 export function solveSquare(a, b, c) {
   return (-b + Math.sqrt((b * b) - (4 * a * c))) / (2 * a);
 }
+

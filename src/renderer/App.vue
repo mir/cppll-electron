@@ -2,44 +2,46 @@
   <div id="app">
     <h1>CPPLL simulator</h1>
     <div class="params">
-      C = <input v-model.number="par.C"
+      C = <input v-model.number="params.C"
                  type="number" min="1e-9" max="1e-1"/>
     </div>
     <div class="ranges">
-      <input type="range" v-model.number="CRange" min="0" max="100" />
+      <input type="range" v-model.number="CRange" min="1" max="100" />
     </div>
-    <div class="params">R = <input v-model.number="par.R"
-                                   type="number" min="1" max="1e9"/>
+    <div class="params">R = <input v-model.number="params.R"
+                                   type="number" min="1" max="100"/>
     </div>
     <div class="ranges">
-      <input type="range" v-model.number="RRange" min="0" max="100"/>
+      <input type="range" v-model.number="RRange" min="1" max="100"/>
     </div>
     <div class="params">
-      I_p = <input v-model.number="par.Ip"
-                   type="number" min="1e-9" max="1e-1"/>
+      I_p = <input v-model.number="params.Ip"
+                   type="number" min="1" max="100"/>
     </div>
     <div class="ranges">
-      <input type="range" v-model.number="IPRange" min="0" max="100"/>
+      <input type="range" v-model.number="IPRange" min="1" max="100"/>
     </div>
-    <div class="params">K_vco = <input v-model.number="par.Kvco"
-                                       type="number" min="1" max="1e5"/></div>
+    <div class="params">K_vco = <input v-model.number="params.Kvco"
+                                       type="number" min="1" max="100"/></div>
     <div class="ranges">
-      <input type="range" v-model.number="KVCORange" min="1" max="1000"/>
+      <input type="range" v-model.number="KVCORange" min="1" max="100"/>
     </div>
     <div class="params" v-bind:class="{ yellowText: toMakeTrefYellow, redText: toMakeTrefRed }" >
-      T_ref = <input v-model.number="par.Tref"
-                     type="number" min="1e-9" max="1e-1"/>
+      T_ref = <input v-model.number="tRefFormBinding"
+                     type="number" min="1" max="100"/>
     </div>
     <div class="ranges">
       <input type="range" v-model.number="omegaRefRange" min="1" max="100"/>
     </div>
-    <div class="params">omega_free = <input v-model.number="par.omegaFree"
-                                            type="number" min="1e-9" max="1e-1"/>
+    <div class="params">omega_free = <input v-model.number="params.omegaFree"
+                                            type="number" min="1" max="100"/>
     </div>
     <div class="ranges">
-      <input type="range" v-model.number="omegaFreeRange" min="0" max="100"/>
+      <input type="range" v-model.number="omegaFreeRange" min="1" max="100"/>
     </div>
+
     <h3>Initial data</h3>
+
     <div class="params">tau_k = <input v-model.number="tauK" type="number" v-bind:min="-params.Tref"/></div>
     <div class="ranges">
     </div>
@@ -99,24 +101,18 @@
     },
     data() {
       return {
-        par: {
-          C: 0,
-          R: 0,
-          Ip: 0,
-          Kvco: 0,
-          Tref: 0,
+        params: {
+          C: 1e-6,
+          R: 1e3,
+          Ip: 1e-4,
+          Kvco: 1e3,
+          Tref: 1e-3,
           omegaFree: 0,
         },
         xZoom: 1,
         yZoom: 1,
         nearPointsRadius: 1,
         electron: 0,
-        omegaFreeRange: 0,
-        omegaRefRange: 30,
-        KVCORange: 500,
-        IPRange: 30,
-        RRange: 30,
-        CRange: 60,
         steps: 50,
         nearPoints: 0,
         plotHeight: 200,
@@ -125,19 +121,67 @@
       };
     },
     computed: {
-      params() {
-        const Tref = 1 / (10 ** (this.omegaRefRange / 10));
-        const omegaFree = this.omegaFreeRange / (Tref * 200);
-        const result = {
-          R: 10 ** (this.RRange / 10),
-          Ip: 0.1 ** (this.IPRange / 10),
-          C: 0.1 ** (this.CRange / 10),
-          Kvco: this.KVCORange,
-          Tref,
-          omegaFree,
-        };
-        this.par = result;
-        return result;
+      RRange: {
+        get: function getR() {
+          const value = this.sanitize(this.params.R);
+          return Math.round(Math.log10(value) * 10);
+        },
+        set: function setR(sliderValue) {
+          this.params.R = 10 ** (sliderValue / 10);
+        },
+      },
+      CRange: {
+        get: function getC() {
+          const value = this.sanitize(this.params.C);
+          return Math.round(-Math.log10(value) * 10);
+        },
+        set: function setC(sliderValue) {
+          this.params.C = 10 ** (-sliderValue / 10);
+        },
+      },
+      IPRange: {
+        get: function getIp() {
+          const value = this.sanitize(this.params.Ip);
+          return Math.round(-Math.log10(value) * 10);
+        },
+        set: function setIp(sliderValue) {
+          this.params.Ip = 10 ** (-sliderValue / 10);
+        },
+      },
+      KVCORange: {
+        get: function getKvcoRange() {
+          const value = this.sanitize(this.params.Kvco);
+          return Math.round(Math.log10(value) * 10);
+        },
+        set: function setR(sliderValue) {
+          this.params.Kvco = 10 ** (sliderValue / 10);
+        },
+      },
+      omegaRefRange: {
+        get: function getOmegaRef() {
+          const value = this.sanitize(this.params.Tref);
+          return Math.round(-Math.log10(value) * 10);
+        },
+        set: function setR(sliderValue) {
+          this.params.Tref = 10 ** (-sliderValue / 10);
+        },
+      },
+      omegaFreeRange: {
+        get: function getOmegaFree() {
+          return Math.round(this.params.omegaFree / 10);
+        },
+        set: function setOmegaFree(sliderValue) {
+          this.params.omegaFree = sliderValue * 10;
+        },
+      },
+      tRefFormBinding: {
+        get: function getTRef() {
+          return this.params.Tref;
+        },
+        set: function setTRef(value) {
+          const newValue = this.sanitize(value);
+          this.params.Tref = newValue;
+        },
       },
       eq() {
         return [{
@@ -201,6 +245,10 @@
       },
       overloadFunc(tau) {
         return vOverload(tau, this.params);
+      },
+      sanitize(value) {
+        if (value <= 0) return 1;
+        return value;
       },
     },
   };
