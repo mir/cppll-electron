@@ -2,7 +2,10 @@
     <svg id="svg" ref="svg"
          v-bind:width="width"
          v-bind:height="height"
-         v-on:click="mouseClick">
+         v-on:click="mouseClick"
+         v-on:mouseover="showOnHover = true"
+         v-on:mouseleave="showOnHover = false"
+         v-on:mousemove="mouseHover">
 
         <path v-bind:d="grayAreaPathData" class="overload-path"/>
 
@@ -16,6 +19,14 @@
             <path v-bind:d="sectorLine1PathData" />
             <path v-bind:d="sectorLine2PathData" />
             <path v-bind:d="sectorLine3PathData" />
+        </g>
+
+        <g class="hover" v-show="showOnHover">
+            <path v-bind:d="hoverPathData" class="light-green"/>
+            <circle v-for="(point, index) in hoverPoints" :key="index"
+                    v-bind:cx="point[0]"
+                    v-bind:cy="point[1]"
+                    class="vertex-grey"/>
         </g>
 
         <g class="secondary">
@@ -72,6 +83,12 @@
           return [{ x: 0, y: 0 }];
         },
       },
+      hoverData: {
+        type: Array,
+        default() {
+          return [{ x: 0, y: 0 }];
+        },
+      },
       sectorLine1Data: {
         type: Array,
         default() {
@@ -106,6 +123,9 @@
       suggestData: {
         type: Function,
       },
+      hoverDataCallback: {
+        type: Function,
+      },
       vOverload: {
         type: Function,
       },
@@ -113,6 +133,7 @@
     components: { YAxes, XAxes },
     data() {
       return {
+        showOnHover: false,
         mouseX: 0,
         mouseY: 0,
         plotArea: {
@@ -141,11 +162,18 @@
         return this.secondaryData
           .map(point => [this.xScale(point.x), this.yScale(point.y)]);
       },
+      hoverPoints() {
+        return this.hoverData
+          .map(point => [this.xScale(point.x), this.yScale(point.y)]);
+      },
       pathData() {
         return this.getPathData(this.dataPoints);
       },
       secondaryPathData() {
         return this.getPathData(this.secondaryData);
+      },
+      hoverPathData() {
+        return this.getPathData(this.hoverData);
       },
       grayAreaPathData() {
         const path = [[this.plotArea.x, this.plotArea.height]];
@@ -228,6 +256,16 @@
         this.mouseY = res.y;
         this.suggestData(this.xScaleInvert(res.x), this.yScaleInvert(res.y));
       },
+      mouseHover(e) {
+        const svg = document.getElementById('svg');
+        const pt = svg.createSVGPoint();
+        pt.x = e.clientX;
+        pt.y = e.clientY;
+        const res = pt.matrixTransform(svg.getScreenCTM().inverse());
+        this.mouseX = res.x;
+        this.mouseY = res.y;
+        this.hoverDataCallback(this.xScaleInvert(res.x), this.yScaleInvert(res.y));
+      },
     },
   };
 </script>
@@ -255,6 +293,10 @@
     .path-grey {
         fill: none;
         stroke: #bebebe;
+    }
+    .light-green {
+        fill: none;
+        stroke: #9ebea5;
     }
     .overload-path {
         fill: #e5edff;

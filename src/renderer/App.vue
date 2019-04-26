@@ -57,16 +57,18 @@
            orient="vertical">
     <div class="chart">
       <d3-chart v-bind:data-points="log"
-              v-bind:secondary-data="log2"
-              v-bind:equilibrium="eq"
-              v-bind:width="plotWidth"
-              v-bind:height="plotHeight"
-              v-bind:x-range="xRange"
-              v-bind:y-range="yRange"
-              v-bind:suggest-data="suggestIC"
-              v-bind:v-overload="overloadFunc"
-              v-bind:sector-line1-data="sector1"
-              v-bind:sector-line2-data="sector2"/>
+                v-bind:secondary-data="log2"
+                v-bind:equilibrium="eq"
+                v-bind:width="plotWidth"
+                v-bind:height="plotHeight"
+                v-bind:x-range="xRange"
+                v-bind:y-range="yRange"
+                v-bind:suggest-data="suggestIC"
+                v-bind:hover-data-callback="hoverIC"
+                v-bind:hover-data="logHover"
+                v-bind:v-overload="overloadFunc"
+                v-bind:sector-line1-data="sector1"
+                v-bind:sector-line2-data="sector2"/>
       <input type="range"
              v-model="xZoom"
              name="xZoom"
@@ -112,13 +114,15 @@
         },
         xZoom: 1,
         yZoom: 1,
-        nearPointsRadius: 1,
+        nearPointsRadius: 2,
         electron: 0,
         steps: 50,
-        nearPoints: 0,
+        nearPoints: 5,
         plotHeight: 200,
         tauK: 0,
         vK: 0.5,
+        tauHover: 0,
+        vHover: 0,
       };
     },
     computed: {
@@ -196,6 +200,9 @@
       log() {
         return computeNextN(this.steps, this.tauK, this.vK, this.params);
       },
+      logHover() {
+        return computeNextN(100, this.tauHover, this.vHover, this.params);
+      },
       log2() {
         let addLog = [];
         for (let i = 1; i <= this.nearPoints; i += 1) {
@@ -240,6 +247,10 @@
       suggestIC(tau, v) {
         this.tauK = tau;
         this.vK = v;
+      },
+      hoverIC(tau, v) {
+        this.tauHover = tau;
+        this.vHover = v;
       },
       compute(tau, v) {
         return computeNextN(this.steps, tau, v, this.params);
