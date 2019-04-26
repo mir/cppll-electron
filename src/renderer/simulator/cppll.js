@@ -68,7 +68,7 @@ export function getSector2(params, minTau, precision) {
   while (tau > minTau) {
     const last = (params.Kvco * params.Ip * tau * tau) / (2 * params.C);
     let v = (1 - (params.Tref * params.omegaFree));
-    v -= (tau * (params.Ip * params.R * params.Kvco));
+    v -= (tau * params.Ip * params.R * params.Kvco);
     v += (tau * params.omegaFree);
     v -= last;
     v /= ((params.Tref * params.Kvco) - (params.Kvco * tau));

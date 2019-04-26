@@ -33,7 +33,7 @@
     <div class="ranges">
       <input type="range" v-model.number="omegaRefRange" min="1" max="100"/>
     </div>
-    <div class="params">omega_free = <input v-model.number="params.omegaFree"
+    <div class="params">&#969;_free = <input v-model.number="params.omegaFree"
                                             type="number" min="1" max="100"/>
     </div>
     <div class="ranges">
@@ -42,16 +42,17 @@
 
     <h3>Initial data</h3>
 
-    <div class="params">tau_k = <input v-model.number="tauK" type="number" v-bind:min="-params.Tref"/></div>
+    <div class="params">&#964;(0) = <input v-model.number="tauK" type="number" v-bind:min="-params.Tref"/></div>
     <div class="ranges">
     </div>
-    <span class="params">v_k = <input v-model.number="vK" type="number"/></span>
+    <span class="params">v(0) = <input v-model.number="vK" type="number"/></span>
     <div class="ranges">
     </div>
+
     <input type="range"
            v-model="yZoom"
            name="yZoom"
-           min="0.1" max="10" step="0.1"
+           min="0.1" max="30" step="0.1"
            class="vertical-slider"
            orient="vertical">
     <div class="chart">
@@ -117,7 +118,7 @@
         nearPoints: 0,
         plotHeight: 200,
         tauK: 0,
-        vK: 1,
+        vK: 0.5,
       };
     },
     computed: {

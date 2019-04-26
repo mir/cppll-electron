@@ -1,7 +1,7 @@
 <template>
     <g class="tick">
         <path v-bind:d="lineData"/>
-        <text v-bind:x="x" v-bind:y="y" dy="5" dx="-20">{{ label }}</text>
+        <text v-bind:x="x" v-bind:y="y" dy="5" dx="-30">{{ label }}</text>
     </g>
 </template>
 
